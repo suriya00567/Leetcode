@@ -4,4 +4,5 @@
 4. Find minimum in rotated sorted array(find max as well) w/o if else
 5.Longest Repeating Character Replacement 
 sliding window
-
+6. Sliding window maximum
+deque ??
