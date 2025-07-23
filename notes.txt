@@ -1,0 +1,7 @@
+1. rotate matrix 
+2. spiral matrix
+3. search in rotated sorted array
+4. Find minimum in rotated sorted array(find max as well) w/o if else
+5.Longest Repeating Character Replacement 
+sliding window
+
