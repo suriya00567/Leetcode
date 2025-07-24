@@ -1,7 +1,174 @@
-1. rotate matrix 
-2. spiral matrix
-3. search in rotated sorted array
-4. Find minimum in rotated sorted array(find max as well) w/o if else
+1. Rotate Image (P48)
+In-place 
+Steps : 1. Transpose 2.Reverse row
+pgm:
+  class Solution:
+    def rotate(self, matrix):
+        n = len(matrix)
+
+        # Step 1: Transpose the matrix
+        for i in range(n):
+            for j in range(i + 1, n):
+                matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+
+        # Step 2: Reverse each row
+        for i in range(n):
+            matrix[i].reverse()
+pgm w/o reverse fn:
+  class Solution:
+    def rotate(self, matrix):
+        n = len(matrix)
+        
+        # Transpose the matrix
+        for i in range(n):
+            for j in range(i + 1, n):
+                matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+
+        # Manually reverse each row
+        for i in range(n):
+            left = 0
+            right = n - 1
+            while left < right:
+                matrix[i][left], matrix[i][right] = matrix[i][right], matrix[i][left]
+                left += 1
+                right -= 1
+-------------------------------------------------------------------------------------------
+2. Spiral Matrix (P54)
+Steps: 1. Set boundaries 2.Traverse from left to right 3. Traverse from top to bottom 4. Traverse from right to left 5. Traverse from bottom to top
+pgm:
+  class Solution:
+    def spiralOrder(self, matrix):
+        result = []
+        if not matrix:
+            return result
+
+        top, bottom = 0, len(matrix) - 1
+        left, right = 0, len(matrix[0]) - 1
+
+        while top <= bottom and left <= right:
+
+            # Step 1: Traverse from left to right
+            for col in range(left, right + 1):
+                result.append(matrix[top][col])
+            top += 1
+
+            # Step 2: Traverse from top to bottom
+            for row in range(top, bottom + 1):
+                result.append(matrix[row][right])
+            right -= 1
+
+            # Step 3: Traverse from right to left (only if still valid)
+            if top <= bottom:
+                for col in range(right, left - 1, -1):
+                    result.append(matrix[bottom][col])
+                bottom -= 1
+
+            # Step 4: Traverse from bottom to top (only if still valid)
+            if left <= right:
+                for row in range(bottom, top - 1, -1):
+                    result.append(matrix[row][left])
+                left += 1
+
+        return result
+Exercise: Do for 4X4 Matrix
+-----------------------------------------------------------------------------------------
+3. Search in Rotated Sorted Array (P33)
+rotated array (pivoted)
+Binary tree
+Steps : 1. Calculate mid while while loop is valid 
+        2. Check if mid value is target 
+        3. Check if the left array is sorted, if so check if target is in range and check left, else search right.
+        4. Else Check if the right array is sorted, if so check if target is in range and check right, else check left.
+pgm:
+  class Solution:
+    def search(self, nums, target):
+        left, right = 0, len(nums) - 1
+
+        while left <= right:
+            mid = (left + right) // 2
+
+            # Found target
+            if nums[mid] == target:
+                return mid
+
+            # Left half is sorted
+            if nums[left] <= nums[mid]:
+                if nums[left] <= target < nums[mid]:
+                    right = mid - 1
+                else:
+                    left = mid + 1
+
+            # Right half is sorted
+            else:
+                if nums[mid] < target <= nums[right]:
+                    left = mid + 1
+                else:
+                    right = mid - 1
+
+        return -1
+------------------------------------------------------------------------------------
+4.  Find Minimum in Rotated Sorted Array (P153)
+min lies at pivot pt
+Steps : 1. Find mid 
+        2. If mid val > right val, min ele is towards the right , sos increment left ptr
+        3. Else the min val is towards the left og mid, including mid
+        4. Loop ends when the ptrs point to the ame element (min)
+pgm:
+  class Solution:
+    def findMin(self, nums):
+        left, right = 0, len(nums) - 1
+
+        while left < right:
+            mid = (left + right) // 2
+
+            # If mid element is greater than the rightmost,
+            # then the minimum is in the right half
+            if nums[mid] > nums[right]:
+                left = mid + 1
+            else:
+                # Otherwise, the minimum is in the left half
+                right = mid
+
+        # When left == right, it points to the minimum
+        return nums[left]
+pgm with left side logic :
+  class Solution:
+    def findMin(self, nums):
+        left, right = 0, len(nums) - 1
+
+        while left < right:
+            mid = (left + right) // 2
+
+            if nums[mid] > nums[right]:
+                # Minimum must be in the right half
+                left = mid + 1
+            elif nums[mid] < nums[right]:
+                # Minimum is in the left half, possibly at mid
+                right = mid
+            else:
+                right -= 1  # handling duplicates
+
+        return nums[left]
+pgm for maximum : 
+  class Solution:
+    def findMax(self, nums):
+        left, right = 0, len(nums) - 1
+
+        while left < right:
+            mid = (left + right) // 2
+
+            if nums[mid] > nums[left]:
+                # Max could be mid or to its right
+                left = mid
+            elif nums[mid] < nums[left]:
+                # Max is in the left half (before mid)
+                right = mid - 1
+            else:
+                # Only 2 elements left
+                break
+
+        return max(nums[left], nums[right])
+
 5.Longest Repeating Character Replacement 
 sliding window
 6. Sliding window maximum
