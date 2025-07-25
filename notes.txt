@@ -168,8 +168,8 @@ pgm for maximum :
                 break
 
         return max(nums[left], nums[right])
-
-5.Longest Repeating Character Replacement 
+--------------------------------------------------------------------------------------------------------------------
+5.Longest Repeating Character Replacement (P424)
 sliding window
 Steps : 1. Iterate right pointer through the string
         2. Update count of the character at right
@@ -201,7 +201,7 @@ pgm :
 
         return result
 -------------------------------------------------------------------------------------------------------------------
-6. Sliding window maximum
+6. Sliding window maximum (P239)
 Steps: 1. Remove smaller elements from the back.
        2. Add current index to the deque.
        3. Remove front if it’s out of the window.
@@ -232,7 +232,9 @@ class Solution:
 
         return result
 -----------------------------------------------------------------------------------------------------------------------
-7. Minimum Size Subarray Sum
+#DAY 2
+-----------------------------------------------------------------------------------------------------------------------
+7. Minimum Size Subarray Sum (P209)
 Steps: 1. Expand right, adding nums[right] to the total.
        2. When total ≥ target, update min_len.
        3. Shrink window from left, subtracting nums[left].
@@ -255,7 +257,7 @@ pgm :
 
         return 0 if min_len == float('inf') else min_len
 -----------------------------------------------------------------------------------------------------------------------
-8. Largest Rectangle in Histogram
+8. Largest Rectangle in Histogram (P84)
 stack
 Steps : 1. For each bar, pop from stack while current bar < stack top.
         2. For each popped bar, calculate area using height and width.
@@ -280,7 +282,7 @@ pgm:
 
         return max_area
 -----------------------------------------------------------------------------------------------------------------------
-9. Maximal Rectangle
+9. Maximal Rectangle (P85)
 Steps: 1. Treat each row as a histogram of 1’s height.
        2. For each row, update heights (increment if '1', reset if '0').
        3. Apply "Largest Rectangle in Histogram" on updated heights.
@@ -323,7 +325,7 @@ pgm :
         heights.pop()  # remove sentinel
         return max_area
 -----------------------------------------------------------------------------------------------------------------------
-10. Find All Anagrams in a String
+10. Find All Anagrams in a String (P438)
 Steps : 1. Count the frequency of characters in the pattern p.
         2. Use a sliding window of size len(p) on string s.
         3. Maintain a count of characters in the current window.
@@ -361,7 +363,7 @@ pgm :
 
         return res
 -----------------------------------------------------------------------------------------------------------------------
-11. Copy List with Random Pointer
+11. Copy List with Random Pointer (P138)
 Steps : 1. Iterate and create a copy of each node, inserting it right after the original node.
         2. Iterate again and assign random pointers for the copied nodes using original.random.next.
         3. Separate the copied list from the original by fixing next pointers.
@@ -405,7 +407,7 @@ class Solution:
 
         return copy_head
 -----------------------------------------------------------------------------------------------------------------------
-12. Sort List
+12. Sort List (P148)
 Steps : 1. Use merge sort since it gives O(n log n) with constant space.
         2. Find the middle of the list using slow and fast pointers.
         3. Split the list into two halves.
@@ -457,7 +459,9 @@ class Solution:
 
         return dummy.next
 -----------------------------------------------------------------------------------------------------------------------
-13. Intersection of Two Linked Lists
+#DAY 3
+-----------------------------------------------------------------------------------------------------------------------
+13. Intersection of Two Linked Lists (P160)
 Steps : 1. Use two pointers a and b at the heads of the lists.
         2. Traverse both lists; when a pointer reaches the end, redirect it to the head of the other list.
         3. If the lists intersect, the pointers will eventually meet at the intersection node.
@@ -482,7 +486,16 @@ pgm :
 
         return pA
 -----------------------------------------------------------------------------------------------------------------------
-14. Flatten a Multilevel Doubly Linked List
+Focus :
+https://replit.com/ - cloud
+git - commands
+github
+python / Java / JavaScript
+10 percent all domains
+-----------------------------------------------------------------------------------------------------------------------
+14. Flatten a Multilevel Doubly Linked List (P430)
+stack
+dfs
 Steps : 1. Use a stack to help flatten the list in depth-first order.
         2. Start from the head and traverse nodes.
         3. If a node has a child, push the next node to stack (if exists).
@@ -497,7 +510,7 @@ pgm :
         self.next = next
         self.child = child
 
-class Solution:
+  class Solution:
     def flatten(self, head: 'Node') -> 'Node':
         if not head:
             return None
@@ -528,7 +541,8 @@ class Solution:
         dummy.next.prev = None
         return dummy.next
 -----------------------------------------------------------------------------------------------------------------------
-15. Design Skiplist
+15. Design Skiplist (P1206)
+
 Steps : 1. Each node has multiple forward pointers for levels.
         2. Use random level generation to decide height of new node.
         3. For search, move level by level from top to bottom.
@@ -608,7 +622,7 @@ pgm :
             return True
         return False
 -----------------------------------------------------------------------------------------------------------------------
-16. Design Twitter
+16. Design Twitter (P355)
 Steps : 1. Store tweets per user as (time, tweetId).
         2. Use a global timestamp to order tweets.
         3. For postTweet, append tweet with timestamp to user list.
@@ -617,9 +631,9 @@ Steps : 1. Store tweets per user as (time, tweetId).
         6. Return tweetIds sorted by time (most recent first).
 pgm :
   import heapq
-from collections import defaultdict
+  from collections import defaultdict
 
-class Twitter:
+  class Twitter:
 
     def __init__(self):
         self.time = 0  # Global timestamp
@@ -651,5 +665,230 @@ class Twitter:
         if followeeId in self.following[followerId]:
             self.following[followerId].remove(followeeId)
 -----------------------------------------------------------------------------------------------------------------------
+17. Number of Islands (P200)
 
+Steps : 1. Loop through the grid. If you find land ('1'), it's a new island.
+        2. Increase island count and start DFS from that cell.
+        3. In DFS, mark the current cell as visited ('0') and explore up, down, left, and right.
+        4. Repeat until all land is visited. Return the total count.
+pgm : 
+  class Solution:
+    def numIslands(self, grid: List[List[str]]) -> int:
+        if not grid:
+            return 0
 
+        rows, cols = len(grid), len(grid[0])
+        islands = 0
+
+        def dfs(r, c):
+            # Boundary check & if it's water or already visited
+            if r < 0 or c < 0 or r >= rows or c >= cols or grid[r][c] == '0':
+                return
+
+            # Mark current cell as visited
+            grid[r][c] = '0'
+
+            # Explore all 4 directions
+            dfs(r + 1, c)  # down
+            dfs(r - 1, c)  # up
+            dfs(r, c + 1)  # right
+            dfs(r, c - 1)  # left
+
+        for r in range(rows):
+            for c in range(cols):
+                if grid[r][c] == '1':
+                    islands += 1  # Found a new island
+                    dfs(r, c)     # Mark all its land
+
+        return islands
+--------------------------------------------------------------------------------------------------------------------
+18. Maximum Area of Island (P695)
+Steps : 1. Loop through the grid. If you find land (1), it's a potential island.
+        2. Start DFS from that cell to calculate the area of this island.
+        3. In DFS, mark the current cell as visited (0) and sum up the area by exploring all 4 directions.
+        4. Keep track of the maximum area found so far. Return it after traversing the whole grid.
+pgm : 
+  class Solution:
+    def maxAreaOfIsland(self, grid: List[List[int]]) -> int:
+        if not grid:
+            return 0
+
+        rows, cols = len(grid), len(grid[0])
+        max_area = 0
+
+        def dfs(r, c):
+            # Boundary check & if it's water or already visited
+            if r < 0 or c < 0 or r >= rows or c >= cols or grid[r][c] == 0:
+                return 0
+
+            # Mark current cell as visited
+            grid[r][c] = 0
+
+            # Count current cell + explore neighbors
+            area = 1
+            area += dfs(r + 1, c)  # down
+            area += dfs(r - 1, c)  # up
+            area += dfs(r, c + 1)  # right
+            area += dfs(r, c - 1)  # left
+
+            return area
+
+        for r in range(rows):
+            for c in range(cols):
+                if grid[r][c] == 1:
+                    current_area = dfs(r, c)
+                    max_area = max(max_area, current_area)
+
+        return max_area
+--------------------------------------------------------------------------------------------------------------------
+19 . Clone Graph (P133)
+Steps : 1. If the node is already cloned, return it.
+        2. Else, create a new node and store it in the map.
+        3. Recursively clone all its neighbors and append them to the new node’s neighbors.
+pgm : 
+  class Solution:
+    def cloneGraph(self, node: 'Node') -> 'Node':
+        if not node:
+            return None
+
+        # Dictionary to map original node -> cloned node
+        cloned = {}
+
+        def dfs(current):
+            # If already cloned, return it
+            if current in cloned:
+                return cloned[current]
+
+            # Clone the current node
+            copy = Node(current.val)
+            cloned[current] = copy
+
+            # Clone all neighbors
+            for neighbor in current.neighbors:
+                copy.neighbors.append(dfs(neighbor))
+
+            return copy
+
+        return dfs(node)
+-----------------------------------------------------------------------------------------------------------------------
+20. Pacific Atlantic Water Flow (P417)
+Steps : 1. If the node is already cloned, return it.
+        2. Else, create a new node and store it in the map.
+        3. Recursively clone all its neighbors and append them to the new node’s neighbors.
+pgm :
+  class Solution:
+    def pacificAtlantic(self, heights):
+        if not heights:
+            return []
+
+        rows, cols = len(heights), len(heights[0])
+        pacific = set()
+        atlantic = set()
+
+        def dfs(r, c, visited, prev_height):
+            # Out of bounds or already visited or cannot flow upward
+            if (r < 0 or c < 0 or r >= rows or c >= cols or
+                (r, c) in visited or heights[r][c] < prev_height):
+                return
+
+            visited.add((r, c))
+
+            # Explore 4 directions
+            dfs(r + 1, c, visited, heights[r][c])
+            dfs(r - 1, c, visited, heights[r][c])
+            dfs(r, c + 1, visited, heights[r][c])
+            dfs(r, c - 1, visited, heights[r][c])
+
+        # Pacific edges (top row + left column)
+        for c in range(cols):
+            dfs(0, c, pacific, heights[0][c])     # top row
+            dfs(rows - 1, c, atlantic, heights[rows - 1][c]) # bottom row
+
+        for r in range(rows):
+            dfs(r, 0, pacific, heights[r][0])     # left column
+            dfs(r, cols - 1, atlantic, heights[r][cols - 1]) # right column
+
+        # Intersection: cells reachable by both oceans
+        return list(pacific & atlantic)
+---------------------------------------------------------------------------------------------------------------------
+21. Surrounded Regions (P130)
+Steps : 1. If the current node is already in our dictionary, it means we’ve cloned it earlier — just return that clone.
+        2. Otherwise, we create a new node with the same value.
+        3. We add this new node to the dictionary so we don’t clone it again later.
+        4. Then, for every neighbor of the current node, we call DFS on that neighbor.
+pgm : 
+  class Solution:
+    def solve(self, board):
+        if not board or not board[0]:
+            return
+
+        rows, cols = len(board), len(board[0])
+
+        def dfs(r, c):
+            # Out of bounds or not 'O'
+            if r < 0 or r >= rows or c < 0 or c >= cols or board[r][c] != 'O':
+                return
+
+            # Mark this cell as safe (S)
+            board[r][c] = 'S'
+
+            # Explore 4 directions
+            dfs(r + 1, c)
+            dfs(r - 1, c)
+            dfs(r, c + 1)
+            dfs(r, c - 1)
+
+        # 1. Mark border-connected 'O' as safe
+        for r in range(rows):
+            dfs(r, 0)           # left column
+            dfs(r, cols - 1)    # right column
+        for c in range(cols):
+            dfs(0, c)           # top row
+            dfs(rows - 1, c)    # bottom row
+
+        # 2. Flip surrounded 'O' -> 'X', and safe 'S' -> 'O'
+        for r in range(rows):
+            for c in range(cols):
+                if board[r][c] == 'O':
+                    board[r][c] = 'X'  # captured
+                elif board[r][c] == 'S':
+                    board[r][c] = 'O'  # safe
+---------------------------------------------------------------------------------------------------------------
+22. Minimum Height Trees
+Steps : 
+
+pgm :
+  class Solution:
+    def findMinHeightTrees(self, n, edges):
+        if n == 1:
+            return [0]  # Single node is the only MHT
+
+        # Step 1: Build adjacency list
+        graph = [set() for _ in range(n)]
+        for u, v in edges:
+            graph[u].add(v)
+            graph[v].add(u)
+
+        # Step 2: Initialize leaves (nodes with only 1 neighbor)
+        leaves = [i for i in range(n) if len(graph[i]) == 1]
+
+        remaining_nodes = n
+
+        # Step 3: Trim leaves layer by layer
+        while remaining_nodes > 2:
+            remaining_nodes -= len(leaves)
+            new_leaves = []
+
+            for leaf in leaves:
+                # Leaf has only one neighbor
+                neighbor = graph[leaf].pop()
+                graph[neighbor].remove(leaf)
+
+                # If neighbor becomes a leaf
+                if len(graph[neighbor]) == 1:
+                    new_leaves.append(neighbor)
+
+            leaves = new_leaves
+
+        return leaves
+---------------------------------------------------------------------------------------------------
