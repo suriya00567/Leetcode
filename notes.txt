@@ -171,5 +171,485 @@ pgm for maximum :
 
 5.Longest Repeating Character Replacement 
 sliding window
+Steps : 1. Iterate right pointer through the string
+        2. Update count of the character at right
+        3. Track the highest frequency character in the current window
+        4. If window size minus highest frequency > k, shrink the window by moving left and updating its count
+pgm : 
+  class Solution:
+    def characterReplacement(self, s: str, k: int) -> int:
+        count = {}
+        left = 0
+        max_freq = 0
+        result = 0
+
+        for right in range(len(s)):
+            # Count the current character
+            count[s[right]] = count.get(s[right], 0) + 1
+
+            # Track the max frequency character in the window
+            max_freq = max(max_freq, count[s[right]])
+
+            # Check if window is invalid (needs > k replacements)
+            if (right - left + 1) - max_freq > k:
+                # Shrink from left
+                count[s[left]] -= 1
+                left += 1
+
+            # Update result with valid window size
+            result = max(result, right - left + 1)
+
+        return result
+-------------------------------------------------------------------------------------------------------------------
 6. Sliding window maximum
-deque ??
+Steps: 1. Remove smaller elements from the back.
+       2. Add current index to the deque.
+       3. Remove front if it’s out of the window.
+       4. Record the front element as max once window size hits k.
+pgm : 
+  from collections import deque
+
+class Solution:
+    def maxSlidingWindow(self, nums: list[int], k: int) -> list[int]:
+        dq = deque()  # stores indices, not values
+        result = []
+
+        for i in range(len(nums)):
+            # Step 1: Remove indices outside the window
+            if dq and dq[0] == i - k:
+                dq.popleft()
+
+            # Step 2: Remove smaller values from the back
+            while dq and nums[dq[-1]] < nums[i]:
+                dq.pop()
+
+            # Step 3: Add current index
+            dq.append(i)
+
+            # Step 4: Add max for valid window
+            if i >= k - 1:
+                result.append(nums[dq[0]])
+
+        return result
+-----------------------------------------------------------------------------------------------------------------------
+7. Minimum Size Subarray Sum
+Steps: 1. Expand right, adding nums[right] to the total.
+       2. When total ≥ target, update min_len.
+       3. Shrink window from left, subtracting nums[left].
+pgm :
+  class Solution:
+    def minSubArrayLen(self, target: int, nums: list[int]) -> int:
+        n = len(nums)
+        left = 0
+        curr_sum = 0
+        min_len = float('inf')
+
+        for right in range(n):
+            curr_sum += nums[right]
+
+            # Shrink window while sum >= target
+            while curr_sum >= target:
+                min_len = min(min_len, right - left + 1)
+                curr_sum -= nums[left]
+                left += 1
+
+        return 0 if min_len == float('inf') else min_len
+-----------------------------------------------------------------------------------------------------------------------
+8. Largest Rectangle in Histogram
+stack
+Steps : 1. For each bar, pop from stack while current bar < stack top.
+        2. For each popped bar, calculate area using height and width.
+        3. Update max area.
+        4. Push current index to stack.
+        5. Do this for all bars, including a 0-height at the end.
+pgm:
+  class Solution:
+    def largestRectangleArea(self, heights: list[int]) -> int:
+        stack = []  # store indices of increasing bars
+        max_area = 0
+        heights.append(0)  # sentinel to flush stack at the end
+
+        for i, h in enumerate(heights):
+            # When current bar is lower than stack top, pop
+            while stack and heights[stack[-1]] > h:
+                height = heights[stack.pop()]
+                width = i if not stack else i - stack[-1] - 1
+                max_area = max(max_area, height * width)
+
+            stack.append(i)
+
+        return max_area
+-----------------------------------------------------------------------------------------------------------------------
+9. Maximal Rectangle
+Steps: 1. Treat each row as a histogram of 1’s height.
+       2. For each row, update heights (increment if '1', reset if '0').
+       3. Apply "Largest Rectangle in Histogram" on updated heights.
+       4. Track and update the max area after each row.
+pgm :
+  class Solution:
+    def maximalRectangle(self, matrix: list[list[str]]) -> int:
+        if not matrix or not matrix[0]:
+            return 0
+
+        rows, cols = len(matrix), len(matrix[0])
+        heights = [0] * cols
+        max_area = 0
+
+        for r in range(rows):
+            # Update heights for this row
+            for c in range(cols):
+                if matrix[r][c] == "1":
+                    heights[c] += 1
+                else:
+                    heights[c] = 0
+
+            # Calculate largest rectangle for current histogram
+            max_area = max(max_area, self.largestRectangleArea(heights))
+
+        return max_area
+
+    def largestRectangleArea(self, heights: list[int]) -> int:
+        stack = []
+        max_area = 0
+        heights.append(0)  # sentinel to flush stack
+
+        for i, h in enumerate(heights):
+            while stack and heights[stack[-1]] > h:
+                height = heights[stack.pop()]
+                width = i if not stack else i - stack[-1] - 1
+                max_area = max(max_area, height * width)
+            stack.append(i)
+
+        heights.pop()  # remove sentinel
+        return max_area
+-----------------------------------------------------------------------------------------------------------------------
+10. Find All Anagrams in a String
+Steps : 1. Count the frequency of characters in the pattern p.
+        2. Use a sliding window of size len(p) on string s.
+        3. Maintain a count of characters in the current window.
+        5. If the window’s frequency matches pattern’s, record the start index.
+        6. Slide the window by adding right char, removing left.
+        7. Repeat until the end of the string.
+pgm : 
+  class Solution:
+    def findAnagrams(self, s: str, p: str) -> list[int]:
+        if len(p) > len(s):
+            return []
+
+        res = []
+        p_count = [0] * 26
+        s_count = [0] * 26
+
+        # Count frequency for p and first window in s
+        for i in range(len(p)):
+            p_count[ord(p[i]) - ord('a')] += 1
+            s_count[ord(s[i]) - ord('a')] += 1
+
+        # Check initial window
+        if p_count == s_count:
+            res.append(0)
+
+        # Slide the window
+        for i in range(len(p), len(s)):
+            # add new char
+            s_count[ord(s[i]) - ord('a')] += 1
+            # remove old char (i - len(p))
+            s_count[ord(s[i - len(p)]) - ord('a')] -= 1
+
+            if s_count == p_count:
+                res.append(i - len(p) + 1)
+
+        return res
+-----------------------------------------------------------------------------------------------------------------------
+11. Copy List with Random Pointer
+Steps : 1. Iterate and create a copy of each node, inserting it right after the original node.
+        2. Iterate again and assign random pointers for the copied nodes using original.random.next.
+        3. Separate the copied list from the original by fixing next pointers.
+        4. Return the head of the copied list.
+pgm : 
+  class Node:
+    def __init__(self, x: int, next: 'Node' = None, random: 'Node' = None):
+        self.val = x
+        self.next = next
+        self.random = random
+
+class Solution:
+    def copyRandomList(self, head: 'Node') -> 'Node':
+        if not head:
+            return None
+
+        # Step 1: Clone each node and insert it next to the original node
+        curr = head
+        while curr:
+            new_node = Node(curr.val)
+            new_node.next = curr.next
+            curr.next = new_node
+            curr = new_node.next
+
+        # Step 2: Set random pointers for the cloned nodes
+        curr = head
+        while curr:
+            if curr.random:
+                curr.next.random = curr.random.next
+            curr = curr.next.next
+
+        # Step 3: Separate the cloned list from the original list
+        curr = head
+        copy_head = head.next
+        while curr:
+            copy_node = curr.next
+            curr.next = copy_node.next
+            if copy_node.next:
+                copy_node.next = copy_node.next.next
+            curr = curr.next
+
+        return copy_head
+-----------------------------------------------------------------------------------------------------------------------
+12. Sort List
+Steps : 1. Use merge sort since it gives O(n log n) with constant space.
+        2. Find the middle of the list using slow and fast pointers.
+        3. Split the list into two halves.
+        4. Recursively sort both halves.
+        5. Merge the sorted halves and return the result.
+pgm : 
+  class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+class Solution:
+    def sortList(self, head: ListNode) -> ListNode:
+        # Base case: if list is empty or has one node
+        if not head or not head.next:
+            return head
+
+        # Step 1: Split list into two halves
+        slow, fast = head, head.next
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+
+        mid = slow.next
+        slow.next = None  # cut the list into two halves
+
+        # Step 2: Recursively sort both halves
+        left = self.sortList(head)
+        right = self.sortList(mid)
+
+        # Step 3: Merge two sorted halves
+        return self.merge(left, right)
+
+    def merge(self, l1: ListNode, l2: ListNode) -> ListNode:
+        dummy = ListNode(0)
+        tail = dummy
+
+        while l1 and l2:
+            if l1.val < l2.val:
+                tail.next = l1
+                l1 = l1.next
+            else:
+                tail.next = l2
+                l2 = l2.next
+            tail = tail.next
+
+        # attach remaining nodes
+        tail.next = l1 if l1 else l2
+
+        return dummy.next
+-----------------------------------------------------------------------------------------------------------------------
+13. Intersection of Two Linked Lists
+Steps : 1. Use two pointers a and b at the heads of the lists.
+        2. Traverse both lists; when a pointer reaches the end, redirect it to the head of the other list.
+        3. If the lists intersect, the pointers will eventually meet at the intersection node.
+        4. If not, both will reach None at the same time.
+        5. Return the node where they meet
+pgm : 
+  class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+  class Solution:
+    def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> ListNode:
+        if not headA or not headB:
+            return None
+
+        pA, pB = headA, headB
+
+        while pA != pB:
+            pA = pA.next if pA else headB
+            pB = pB.next if pB else headA
+
+        return pA
+-----------------------------------------------------------------------------------------------------------------------
+14. Flatten a Multilevel Doubly Linked List
+Steps : 1. Use a stack to help flatten the list in depth-first order.
+        2. Start from the head and traverse nodes.
+        3. If a node has a child, push the next node to stack (if exists).
+        4. Connect the child to current node’s next, and remove the child link.
+        5. Continue traversal; when next becomes None, pop from stack and reconnect.
+        6. Repeat until all nodes are processed and stack is empty.
+pgm : 
+  class Node:
+    def __init__(self, val, prev=None, next=None, child=None):
+        self.val = val
+        self.prev = prev
+        self.next = next
+        self.child = child
+
+class Solution:
+    def flatten(self, head: 'Node') -> 'Node':
+        if not head:
+            return None
+
+        dummy = Node(0)   # Dummy node to simplify linking
+        prev = dummy
+        stack = [head]
+
+        while stack:
+            curr = stack.pop()
+
+            # Link current node with prev
+            prev.next = curr
+            curr.prev = prev
+
+            # If next exists, push to stack (processed later)
+            if curr.next:
+                stack.append(curr.next)
+
+            # If child exists, push to stack (processed first)
+            if curr.child:
+                stack.append(curr.child)
+                curr.child = None
+
+            prev = curr  # Move prev forward
+
+        # Detach dummy node
+        dummy.next.prev = None
+        return dummy.next
+-----------------------------------------------------------------------------------------------------------------------
+15. Design Skiplist
+Steps : 1. Each node has multiple forward pointers for levels.
+        2. Use random level generation to decide height of new node.
+        3. For search, move level by level from top to bottom.
+        4. For add, track update path, insert node with new forward links.
+        5. For erase, follow same update path and remove node references.
+        6. Ensure pointers are correctly updated at all affected levels.
+pgm : 
+  import random
+
+  class Node:
+    def __init__(self, val, level):
+        self.val = val
+        self.forward = [None] * (level + 1)
+
+  class Skiplist:
+
+    MAX_LEVEL = 16
+    P = 0.5
+
+    def __init__(self):
+        self.head = Node(-1, self.MAX_LEVEL)
+        self.level = 0
+
+    def random_level(self):
+        lvl = 0
+        while random.random() < self.P and lvl < self.MAX_LEVEL:
+            lvl += 1
+        return lvl
+
+    def search(self, target: int) -> bool:
+        curr = self.head
+        for i in range(self.level, -1, -1):
+            while curr.forward[i] and curr.forward[i].val < target:
+                curr = curr.forward[i]
+        curr = curr.forward[0]
+        return curr is not None and curr.val == target
+
+    def add(self, num: int) -> None:
+        update = [None] * (self.MAX_LEVEL + 1)
+        curr = self.head
+
+        for i in range(self.level, -1, -1):
+            while curr.forward[i] and curr.forward[i].val < num:
+                curr = curr.forward[i]
+            update[i] = curr
+
+        lvl = self.random_level()
+        if lvl > self.level:
+            for i in range(self.level + 1, lvl + 1):
+                update[i] = self.head
+            self.level = lvl
+
+        new_node = Node(num, lvl)
+        for i in range(lvl + 1):
+            new_node.forward[i] = update[i].forward[i]
+            update[i].forward[i] = new_node
+
+    def erase(self, num: int) -> bool:
+        update = [None] * (self.MAX_LEVEL + 1)
+        curr = self.head
+
+        for i in range(self.level, -1, -1):
+            while curr.forward[i] and curr.forward[i].val < num:
+                curr = curr.forward[i]
+            update[i] = curr
+
+        curr = curr.forward[0]
+        if curr and curr.val == num:
+            for i in range(self.level + 1):
+                if update[i].forward[i] != curr:
+                    break
+                update[i].forward[i] = curr.forward[i]
+
+            while self.level > 0 and self.head.forward[self.level] is None:
+                self.level -= 1
+
+            return True
+        return False
+-----------------------------------------------------------------------------------------------------------------------
+16. Design Twitter
+Steps : 1. Store tweets per user as (time, tweetId).
+        2. Use a global timestamp to order tweets.
+        3. For postTweet, append tweet with timestamp to user list.
+        4. For follow and unfollow, update user’s follow set.
+        5. For getNewsFeed, use max heap to get 10 most recent tweets from followed users.
+        6. Return tweetIds sorted by time (most recent first).
+pgm :
+  import heapq
+from collections import defaultdict
+
+class Twitter:
+
+    def __init__(self):
+        self.time = 0  # Global timestamp
+        self.tweets = defaultdict(list)  # userId -> list of (time, tweetId)
+        self.following = defaultdict(set)  # userId -> set of followeeIds
+
+    def postTweet(self, userId: int, tweetId: int) -> None:
+        self.time += 1
+        self.tweets[userId].append((self.time, tweetId))
+
+    def getNewsFeed(self, userId: int) -> list[int]:
+        candidates = []
+
+        # Include user's own tweets
+        users_to_check = self.following[userId] | {userId}
+
+        for u in users_to_check:
+            for t in self.tweets[u][-10:]:  # only consider last 10 tweets per user
+                candidates.append(t)
+
+        # Get 10 most recent tweets using heap
+        return [tweetId for _, tweetId in heapq.nlargest(10, candidates)]
+
+    def follow(self, followerId: int, followeeId: int) -> None:
+        if followerId != followeeId:
+            self.following[followerId].add(followeeId)
+
+    def unfollow(self, followerId: int, followeeId: int) -> None:
+        if followeeId in self.following[followerId]:
+            self.following[followerId].remove(followeeId)
+-----------------------------------------------------------------------------------------------------------------------
+
+
